@@ -12,11 +12,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            /* Menggunakan Dynamic Viewport agar tidak tertutup address bar browser HP */
             min-height: 100vh;
+            min-height: 100dvh; 
             margin: 0;
             overflow: hidden;
             font-family: 'Segoe UI', sans-serif;
             touch-action: none;
+        }
+
+        .gameboy-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Kalkulator skala otomatis: selalu mencari ukuran terkecil agar fit di layar */
+            transform: scale(min(1, 95vw / 400, 95dvh / 730));
+            transform-origin: center center;
         }
 
         .gameboy {
@@ -103,41 +114,43 @@
 </head>
 <body>
 
-    <div class="gameboy">
-        <div class="bezel">
-            <div class="battery-light"></div>
-            <div class="screen-glass">
-                <div class="info-panel">
-                    <div>HI<span id="high-score">0</span></div>
-                    <div>SCORE<span id="score">0</span></div>
+    <div class="gameboy-wrapper">
+        <div class="gameboy">
+            <div class="bezel">
+                <div class="battery-light"></div>
+                <div class="screen-glass">
+                    <div class="info-panel">
+                        <div>HI<span id="high-score">0</span></div>
+                        <div>SCORE<span id="score">0</span></div>
+                    </div>
+                    <canvas id="game" width="200" height="400"></canvas>
+                    <div class="info-panel">
+                        <div>LVL<span id="level">1</span></div>
+                        <div>NEXT<canvas id="next-canvas" width="60" height="60"></canvas></div>
+                    </div>
                 </div>
-                <canvas id="game" width="200" height="400"></canvas>
-                <div class="info-panel">
-                    <div>LVL<span id="level">1</span></div>
-                    <div>NEXT<canvas id="next-canvas" width="60" height="60"></canvas></div>
+                <div class="brand-text">Nintendo Game Boy™</div>
+            </div>
+
+            <div class="controls-area">
+                <div class="dpad-container">
+                    <button class="dpad-btn dpad-up" id="btn-up"></button>
+                    <button class="dpad-btn dpad-left" id="btn-left"></button>
+                    <button class="dpad-btn dpad-right" id="btn-right"></button>
+                    <button class="dpad-btn dpad-down" id="btn-down"></button>
+                    <div class="dpad-center"></div>
+                </div>
+                <div class="action-btns">
+                    <div class="action-btn-wrapper"><button class="action-btn" id="btn-b"></button><div class="action-label">B</div></div>
+                    <div class="action-btn-wrapper"><button class="action-btn" id="btn-a"></button><div class="action-label">A</div></div>
                 </div>
             </div>
-            <div class="brand-text">Nintendo Game Boy™</div>
-        </div>
 
-        <div class="controls-area">
-            <div class="dpad-container">
-                <button class="dpad-btn dpad-up" id="btn-up"></button>
-                <button class="dpad-btn dpad-left" id="btn-left"></button>
-                <button class="dpad-btn dpad-right" id="btn-right"></button>
-                <button class="dpad-btn dpad-down" id="btn-down"></button>
-                <div class="dpad-center"></div>
-            </div>
-            <div class="action-btns">
-                <div class="action-btn-wrapper"><button class="action-btn" id="btn-b"></button><div class="action-label">B</div></div>
-                <div class="action-btn-wrapper"><button class="action-btn" id="btn-a"></button><div class="action-label">A</div></div>
-            </div>
-        </div>
-
-        <div class="bottom-section">
-            <div style="display:flex; gap:15px;">
-                <div class="sys-btn-wrapper"><button class="sys-btn" id="btn-select"></button><div class="sys-label">SELECT</div></div>
-                <div class="sys-btn-wrapper"><button class="sys-btn" id="btn-start"></button><div class="sys-label">START</div></div>
+            <div class="bottom-section">
+                <div style="display:flex; gap:15px;">
+                    <div class="sys-btn-wrapper"><button class="sys-btn" id="btn-select"></button><div class="sys-label">SELECT</div></div>
+                    <div class="sys-btn-wrapper"><button class="sys-btn" id="btn-start"></button><div class="sys-label">START</div></div>
+                </div>
             </div>
         </div>
     </div>
@@ -199,7 +212,6 @@
             return true;
         }
 
-        // FUNGSI ROTASI DIPERBAIKI
         function rotateMatrix(matrix) {
             const N = matrix.length;
             const result = matrix.map((row, i) => row.map((val, j) => matrix[N - j - 1][i]));
@@ -251,7 +263,6 @@
             else { document.getElementById('pause-popup').style.display = 'none'; rAF = requestAnimationFrame(loop); }
         }
 
-        // AKSI KONTROL
         function actionMove(dir) {
             if (gameOver || isPaused) return;
             if (isValidMove(tetromino.matrix, tetromino.row, tetromino.col + dir)) { tetromino.col += dir; telemetry.totalMoves++; }
@@ -297,7 +308,6 @@
             nextTetromino.matrix.forEach((r, y) => r.forEach((val, x) => { if (val) nextContext.fillRect(x*15, y*15, 14, 14); }));
         }
 
-        // EVENT LISTENERS
         document.getElementById('btn-up').onclick = actionRotate;
         document.getElementById('btn-b').onclick = actionRotate;
         document.getElementById('btn-a').onclick = actionHardDrop;
