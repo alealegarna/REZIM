@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tetris Boy Pro</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
         body {
             background-color: #2c3e50;
@@ -15,86 +15,32 @@
             min-height: 100vh;
             margin: 0;
             overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            touch-action: none; /* Mencegah layar ter-scroll di HP */
+            font-family: 'Segoe UI', sans-serif;
+            touch-action: none;
         }
 
-        .gameboy-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* --- Casing Gameboy --- */
         .gameboy {
-            background-color: #d1d5db; /* Abu-abu klasik */
+            background-color: #d1d5db;
             border-radius: 15px 15px 55px 15px;
             padding: 25px;
-            box-shadow: 
-                inset -5px -5px 10px rgba(0,0,0,0.1),
-                inset 5px 5px 15px rgba(255,255,255,0.8),
-                10px 15px 30px rgba(0,0,0,0.5);
+            box-shadow: 10px 15px 30px rgba(0,0,0,0.5);
             width: 380px;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
             position: relative;
         }
 
-        /* Garis dekorasi atas */
-        .gameboy::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 20px;
-            right: 20px;
-            height: 25px;
-            border-bottom: 2px solid rgba(0,0,0,0.1);
-            border-left: 2px solid rgba(0,0,0,0.1);
-            border-right: 2px solid rgba(0,0,0,0.1);
-            border-radius: 0 0 5px 5px;
-        }
-
-        /* --- Layar & Bezel --- */
         .bezel {
-            background-color: #374151; /* Abu-abu gelap */
+            background-color: #374151;
             border-radius: 10px 10px 40px 10px;
             padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: inset 3px 3px 10px rgba(0,0,0,0.6);
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
         }
 
-        .battery-light {
-            position: absolute;
-            top: 40px;
-            left: 10px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #ef4444;
-            box-shadow: 0 0 5px #ef4444, inset 1px 1px 2px rgba(255,255,255,0.5);
-        }
-
-        .battery-text {
-            position: absolute;
-            top: 55px;
-            left: 5px;
-            color: #9ca3af;
-            font-size: 8px;
-            letter-spacing: 1px;
-            font-family: sans-serif;
-        }
-
-        /* Kotak Kaca Dalam */
         .screen-glass {
-            background-color: #0f172a; /* Biru tua/hitam neon */
+            background-color: #0f172a;
             width: 100%;
             border-radius: 3px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
             display: flex;
             justify-content: space-between;
             padding: 10px;
@@ -102,7 +48,6 @@
             border: 2px solid #1f2937;
         }
 
-        /* Panel Info Kiri & Kanan di layar */
         .info-panel {
             display: flex;
             flex-direction: column;
@@ -114,325 +59,67 @@
             width: 60px;
         }
 
-        .info-panel span {
-            color: #f8fafc;
-            display: block;
-            margin-top: 3px;
-            font-size: 20px;
-        }
+        .info-panel span { color: #f8fafc; font-size: 20px; display: block; }
 
-        .combo-text {
-            color: #f59e0b !important;
-            animation: pop 0.3s ease-out;
-        }
+        canvas#game { border: 2px solid #38bdf8; background: #000; }
 
-        canvas#game {
-            background-color: #000;
-            border: 2px solid #38bdf8;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-            transition: border-color 0.5s, box-shadow 0.5s;
-        }
+        .controls-area { display: flex; justify-content: space-between; margin-top: 20px; padding: 0 10px; }
+        .dpad { position: relative; width: 110px; height: 110px; }
+        .dpad-btn { position: absolute; background: #1f2937; border: none; cursor: pointer; }
+        .up { top: 0; left: 35px; width: 40px; height: 40px; border-radius: 5px 5px 0 0; }
+        .down { bottom: 0; left: 35px; width: 40px; height: 40px; border-radius: 0 0 5px 5px; }
+        .left { top: 35px; left: 0; width: 40px; height: 40px; border-radius: 5px 0 0 5px; }
+        .right { top: 35px; right: 0; width: 40px; height: 40px; border-radius: 0 5px 5px 0; }
 
-        canvas#next-canvas {
-            background-color: transparent;
-            margin-top: 5px;
-        }
-
-        .brand-text {
-            color: #1e3a8a;
-            font-weight: 900;
-            font-style: italic;
-            font-size: 18px;
-            margin-top: 5px;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
-        }
-
-        /* --- Area Kontrol --- */
-        .controls-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 10px 0 10px;
-        }
-
-        /* D-Pad (Arah Kursor) */
-        .dpad-container {
-            position: relative;
-            width: 110px;
-            height: 110px;
-        }
-
-        .dpad-btn {
-            position: absolute;
-            background-color: #1f2937;
-            border: none;
-            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.4), inset 2px 2px 5px rgba(255,255,255,0.1);
-            cursor: pointer;
-            outline: none;
-            user-select: none;
-            transition: filter 0.1s;
-        }
-
-        .dpad-btn:active { filter: brightness(0.8); }
-
-        .dpad-up { top: 0; left: 35px; width: 40px; height: 40px; border-radius: 5px 5px 0 0; }
-        .dpad-down { bottom: 0; left: 35px; width: 40px; height: 40px; border-radius: 0 0 5px 5px; }
-        .dpad-left { top: 35px; left: 0; width: 40px; height: 40px; border-radius: 5px 0 0 5px; }
-        .dpad-right { top: 35px; right: 0; width: 40px; height: 40px; border-radius: 0 5px 5px 0; }
+        .action-btns { display: flex; gap: 15px; transform: rotate(-25deg); }
+        .act-btn { width: 45px; height: 45px; border-radius: 50%; background: #9f1239; border: none; cursor: pointer; box-shadow: 3px 3px 5px rgba(0,0,0,0.4); }
         
-        .dpad-center {
-            position: absolute;
-            top: 35px; left: 35px; width: 40px; height: 40px;
-            background-color: #1f2937;
-            pointer-events: none; /* Tidak bisa diklik */
-        }
-        
-        /* Bulatan kecil di tengah D-pad */
-        .dpad-center::after {
-            content: ''; position: absolute;
-            top: 15px; left: 15px; width: 10px; height: 10px;
-            border-radius: 50%; background-color: #374151;
-        }
+        .sys-btns { display: flex; gap: 15px; margin-top: 40px; transform: rotate(-25deg); }
+        .sys-btn { width: 50px; height: 14px; background: #4b5563; border-radius: 10px; border: none; cursor: pointer; }
 
-        /* Tombol A & B */
-        .action-btns {
-            display: flex;
-            gap: 15px;
-            transform: rotate(-25deg);
-            margin-top: 20px;
-        }
-
-        .action-btn-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .action-label {
-            color: #1e3a8a;
-            font-weight: 900;
-            font-size: 14px;
-            margin-top: 8px;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
-        }
-
-        .action-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: #9f1239; /* Merah Maroon Tua */
-            border: none;
-            box-shadow: inset -3px -3px 5px rgba(0,0,0,0.3), 3px 3px 5px rgba(0,0,0,0.4);
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-
-        .action-btn:active {
-            transform: scale(0.95) translateY(2px);
-            box-shadow: inset -1px -1px 3px rgba(0,0,0,0.3), 1px 1px 2px rgba(0,0,0,0.4);
-        }
-
-        /* --- Tombol System & Speaker --- */
-        .bottom-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 40px;
-            padding: 0 15px;
-        }
-
-        .system-btns {
-            display: flex;
-            gap: 15px;
-        }
-
-        .sys-btn-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transform: rotate(-25deg);
-        }
-
-        .sys-btn {
-            width: 50px;
-            height: 14px;
-            border-radius: 10px;
-            background-color: #4b5563;
-            border: none;
-            box-shadow: inset -2px -2px 4px rgba(0,0,0,0.4), 2px 2px 4px rgba(0,0,0,0.3);
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.1s;
-        }
-
-        .sys-btn:active { transform: scale(0.95); box-shadow: inset -1px -1px 2px rgba(0,0,0,0.4), 1px 1px 1px rgba(0,0,0,0.3); }
-
-        .sys-label {
-            color: #1e3a8a;
-            font-size: 10px;
-            font-weight: bold;
-            margin-top: 5px;
-            letter-spacing: 1px;
-        }
-
-        .speaker {
-            display: flex;
-            gap: 6px;
-            transform: rotate(-25deg);
-            margin-bottom: 10px;
-        }
-
-        .speaker-hole {
-            width: 6px;
-            height: 50px;
-            border-radius: 3px;
-            background-color: #9ca3af;
-            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        /* --- POP-UP STYLES --- */
         .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            padding: 20px 40px;
-            border-radius: 12px;
-            font-weight: 900;
-            text-align: center;
-            z-index: 999;
-            text-transform: uppercase;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; padding: 20px; border-radius: 12px; font-weight: bold; text-align: center; z-index: 3000;
         }
-
-        @keyframes pop {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-
-        #levelup-popup {
-            background-color: rgba(220, 38, 38, 0.95);
-            font-size: 32px;
-            border: 4px solid #fca5a5;
-            box-shadow: 0 0 40px rgba(220, 38, 38, 0.8);
-            animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-        #pause-popup {
-            background-color: rgba(245, 158, 11, 0.95);
-            font-size: 20px;
-            border: 4px solid #fde68a;
-            box-shadow: 0 0 40px rgba(245, 158, 11, 0.8);
-            pointer-events: none;
-            max-width: 90vw;
-            line-height: 1.5;
-        }
-
-        #gameover-popup {
-            background-color: rgba(15, 23, 42, 0.95);
-            font-size: 28px;
-            border: 4px solid #ef4444;
-            box-shadow: 0 0 40px #ef4444;
-            color: #ef4444;
-            width: 80vw;
-            max-width: 400px;
-        }
-
-        #gameover-popup span {
-            display: block;
-            font-size: 14px;
-            color: white;
-            margin-top: 15px;
-            font-weight: normal;
-            text-transform: none;
-        }
-
-        /* Responsivitas untuk layar HP yang sangat kecil */
-        @media (max-width: 420px), (max-height: 800px) {
-            .gameboy-wrapper { transform: scale(0.85); transform-origin: top center; margin-top: 10px;}
-        }
-        @media (max-width: 350px), (max-height: 700px) {
-            .gameboy-wrapper { transform: scale(0.75); transform-origin: top center; margin-top: 5px;}
-        }
-
+        #levelup-popup { background: #dc2626; border: 4px solid #fca5a5; font-size: 30px; }
+        #pause-popup { background: #f59e0b; border: 4px solid #fde68a; font-size: 20px; width: 80%; }
+        #gameover-popup { background: #0f172a; border: 4px solid #ef4444; font-size: 24px; color: #ef4444; width: 300px; }
+        #gameover-popup span { display: block; font-size: 14px; color: white; margin-top: 10px; font-weight: normal; }
     </style>
 </head>
 <body>
 
-    <div class="gameboy-wrapper">
-        <div class="gameboy">
-            
-            <div class="bezel">
-                <div class="battery-light"></div>
-                <div class="battery-text">BATTERY</div>
-                
-                <div class="screen-glass">
-                    <div class="info-panel">
-                        <div>HI<span id="high-score">0</span></div>
-                        <div style="margin-top:20px;">SCORE<span id="score">0</span></div>
-                        <div id="combo-box" style="display:none; margin-top:20px;">CMB<span id="combo" class="combo-text">x2</span></div>
-                    </div>
-
-                    <canvas id="game" width="200" height="400"></canvas>
-
-                    <div class="info-panel">
-                        <div>LEVEL<span id="level">1</span></div>
-                        <div style="margin-top:20px;">NEXT<canvas id="next-canvas" width="60" height="60"></canvas></div>
-                    </div>
+    <div class="gameboy">
+        <div class="bezel">
+            <div class="screen-glass">
+                <div class="info-panel">
+                    <div>HI<span id="high-score">0</span></div>
+                    <div>SKOR<span id="score">0</span></div>
                 </div>
-
-                <div class="brand-text">Nintendo Game Boy™</div>
-            </div>
-
-            <div class="controls-area">
-                <div class="dpad-container">
-                    <button class="dpad-btn dpad-up" id="btn-up"></button>
-                    <button class="dpad-btn dpad-left" id="btn-left"></button>
-                    <button class="dpad-btn dpad-right" id="btn-right"></button>
-                    <button class="dpad-btn dpad-down" id="btn-down"></button>
-                    <div class="dpad-center"></div>
-                </div>
-
-                <div class="action-btns">
-                    <div class="action-btn-wrapper">
-                        <button class="action-btn" id="btn-b"></button>
-                        <div class="action-label">B</div>
-                    </div>
-                    <div class="action-btn-wrapper">
-                        <button class="action-btn" id="btn-a"></button>
-                        <div class="action-label">A</div>
-                    </div>
+                <canvas id="game" width="200" height="400"></canvas>
+                <div class="info-panel">
+                    <div>LVL<span id="level">1</span></div>
+                    <div>NEXT<canvas id="next-canvas" width="60" height="60"></canvas></div>
                 </div>
             </div>
+        </div>
 
-            <div class="bottom-section">
-                <div class="system-btns">
-                    <div class="sys-btn-wrapper">
-                        <button class="sys-btn" id="btn-select"></button>
-                        <div class="sys-label">SELECT</div>
-                    </div>
-                    <div class="sys-btn-wrapper">
-                        <button class="sys-btn" id="btn-start"></button>
-                        <div class="sys-label">START</div>
-                    </div>
-                </div>
-
-                <div class="speaker">
-                    <div class="speaker-hole"></div>
-                    <div class="speaker-hole"></div>
-                    <div class="speaker-hole"></div>
-                    <div class="speaker-hole"></div>
-                    <div class="speaker-hole"></div>
-                    <div class="speaker-hole"></div>
-                </div>
+        <div class="controls-area">
+            <div class="dpad">
+                <button class="dpad-btn up" id="btn-up"></button>
+                <button class="dpad-btn down" id="btn-down"></button>
+                <button class="dpad-btn left" id="btn-left"></button>
+                <button class="dpad-btn right" id="btn-right"></button>
             </div>
+            <div class="action-btns">
+                <button class="act-btn" id="btn-b"></button>
+                <button class="act-btn" id="btn-a"></button>
+            </div>
+        </div>
 
+        <div class="sys-btns">
+            <button class="sys-btn" id="btn-select"></button>
+            <button class="sys-btn" id="btn-start"></button>
         </div>
     </div>
 
@@ -440,25 +127,38 @@
     <div id="pause-popup" class="popup">PERMAINAN BOLEH DITUNDA,<br>TAPI MBG HARUS TETAP BERJALAN</div>
     <div id="gameover-popup" class="popup">
         HEY ANTEK-ANTEK ASING!!!
-        <span>Klik tombol SELECT (Refresh) untuk main lagi</span>
+        <span>Klik SELECT atau Refresh untuk main lagi</span>
     </div>
 
     <script>
+        // MASUKKAN URL GOOGLE SCRIPT ANDA DI SINI
+        const DATABASE_URL = "https://script.google.com/macros/s/AKfycbxt-g3JKh0a-8hwZw186_G-hYW99RZojVqMnLy4wcuIYqqjkkwhcJgsdMkr8iAh-QRiuQ/exec";
+
+        // Generate ID Otomatis (Silent)
+        const autoID = "User_" + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+        let telemetry = {
+            playerID: autoID,
+            score: 0,
+            level: 1,
+            totalMoves: 0,
+            totalRotations: 0,
+            totalHardDrops: 0,
+            totalPauses: 0,
+            linesCleared: 0,
+            startTime: Date.now(),
+            duration: 0
+        };
+
         const canvas = document.getElementById('game');
         const context = canvas.getContext('2d');
         const nextCanvas = document.getElementById('next-canvas');
         const nextContext = nextCanvas.getContext('2d');
-        
-        // Ukuran disesuaikan untuk layar Gameboy
-        const grid = 20; 
-        const nextGrid = 15; 
-        
+        const grid = 20;
+
         let playfield = [];
         for (let row = -2; row < 20; row++) {
-            playfield[row] = [];
-            for (let col = 0; col < 10; col++) {
-                playfield[row][col] = 0;
-            }
+            playfield[row] = Array(10).fill(0);
         }
 
         const tetrominos = {
@@ -471,74 +171,16 @@
             'T': [[0,1,0], [1,1,1], [0,0,0]]
         };
 
-        const colors = {
-            'I': '#06b6d4', 'O': '#facc15', 'T': '#a855f7',
-            'S': '#22c55e', 'Z': '#ef4444', 'J': '#3b82f6', 'L': '#f97316'
-        };
+        const colors = {'I':'#06b6d4','O':'#facc15','T':'#a855f7','S':'#22c55e','Z':'#ef4444','J':'#3b82f6','L':'#f97316'};
 
-        const levelColors = ['#38bdf8', '#a855f7', '#f97316', '#ef4444', '#22c55e'];
-
-        let tetrominoSequence = [];
-        let count = 0;
-        let rAF = null;
-        let gameOver = false;
-        let isPaused = false;
-        
-        let score = 0;
-        let level = 1;
-        let linesClearedTotal = 0;
-        let combo = 0;
-        let highScore = localStorage.getItem('tetrisHighScore') || 0;
-        document.getElementById('high-score').innerText = highScore;
-
-        let animatingRows = [];
-        let animationTimer = 0;
-
-        // Audio System
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx;
-
-        function playSound(type) {
-            if (!audioCtx) audioCtx = new AudioContext();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            const now = audioCtx.currentTime;
-            
-            if (type === 'move') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now);
-                osc.frequency.exponentialRampToValueAtTime(600, now + 0.05);
-                gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                osc.start(now); osc.stop(now + 0.05);
-            } else if (type === 'rotate') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(800, now);
-                gainNode.gain.setValueAtTime(0.05, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                osc.start(now); osc.stop(now + 0.1);
-            } else if (type === 'drop') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now);
-                osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
-                gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                osc.start(now); osc.stop(now + 0.1);
-            } else if (type === 'clear') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
-                osc.frequency.setValueAtTime(800, now + 0.1); osc.frequency.setValueAtTime(1200, now + 0.2);
-                gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
-                osc.start(now); osc.stop(now + 0.4);
-            }
-        }
-
-        function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        let tetrominoSequence = [], count = 0, rAF = null, gameOver = false, isPaused = false;
+        let score = 0, level = 1, linesTotal = 0;
 
         function generateSequence() {
             const sequence = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
             while (sequence.length) {
-                const rand = getRandomInt(0, sequence.length - 1);
-                const name = sequence.splice(rand, 1)[0];
-                tetrominoSequence.push(name);
+                const rand = Math.floor(Math.random() * sequence.length);
+                tetrominoSequence.push(sequence.splice(rand, 1)[0]);
             }
         }
 
@@ -546,154 +188,88 @@
             if (tetrominoSequence.length === 0) generateSequence();
             const name = tetrominoSequence.pop();
             const matrix = tetrominos[name];
-            const col = playfield[0].length / 2 - Math.ceil(matrix[0].length / 2);
-            const row = name === 'I' ? -1 : -2;
-            return { name, matrix, row, col };
+            return { name, matrix, row: name === 'I' ? -1 : -2, col: 5 - Math.ceil(matrix[0].length / 2) };
         }
 
         let tetromino = createTetromino();
         let nextTetromino = createTetromino();
 
-        function rotate(matrix) {
-            const N = matrix.length - 1;
-            return matrix.map((row, i) => row.map((val, j) => matrix[N - j][i]));
-        }
-
         function isValidMove(matrix, cellRow, cellCol) {
-            for (let row = 0; row < matrix.length; row++) {
-                for (let col = 0; col < matrix[row].length; col++) {
-                    if (matrix[row][col] && (
-                        cellCol + col < 0 ||
-                        cellCol + col >= playfield[0].length ||
-                        cellRow + row >= playfield.length ||
-                        playfield[cellRow + row][cellCol + col])
-                    ) { return false; }
+            for (let r = 0; r < matrix.length; r++) {
+                for (let c = 0; c < matrix[r].length; c++) {
+                    if (matrix[r][c] && (cellCol+c < 0 || cellCol+c >= 10 || cellRow+r >= 20 || playfield[cellRow+r][cellCol+c])) return false;
                 }
             }
             return true;
         }
 
-        function drawNextPiece() {
-            nextContext.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
-            const matrix = nextTetromino.matrix;
-            const size = matrix.length;
-            const offset = (nextCanvas.width - size * nextGrid) / 2;
-
-            nextContext.fillStyle = colors[nextTetromino.name];
-            for (let r = 0; r < size; r++) {
-                for (let c = 0; c < size; c++) {
-                    if (matrix[r][c]) {
-                        nextContext.fillRect(offset + c * nextGrid, offset + r * nextGrid, nextGrid - 1, nextGrid - 1);
-                    }
-                }
-            }
-        }
-
         function placeTetromino() {
-            playSound('drop');
-            for (let row = 0; row < tetromino.matrix.length; row++) {
-                for (let col = 0; col < tetromino.matrix[row].length; col++) {
-                    if (tetromino.matrix[row][col]) {
-                        if (tetromino.row + row < 0) { return showGameOver(); }
-                        playfield[tetromino.row + row][tetromino.col + col] = tetromino.name;
+            for (let r = 0; r < tetromino.matrix.length; r++) {
+                for (let c = 0; c < tetromino.matrix[r].length; c++) {
+                    if (tetromino.matrix[r][c]) {
+                        if (tetromino.row + r < 0) return showGameOver();
+                        playfield[tetromino.row + r][tetromino.col + c] = tetromino.name;
                     }
                 }
             }
 
-            let linesCleared = 0;
-            let rowsToClear = [];
-            for (let row = playfield.length - 1; row >= 0; row--) {
-                if (playfield[row].every(cell => !!cell)) {
-                    linesCleared++;
-                    rowsToClear.push(row);
+            let lines = 0;
+            for (let r = 19; r >= 0; r--) {
+                if (playfield[r].every(cell => !!cell)) {
+                    lines++;
+                    playfield.splice(r, 1);
+                    playfield.unshift(Array(10).fill(0));
+                    r++;
                 }
             }
 
-            if (linesCleared > 0) {
-                animatingRows = rowsToClear;
-                animationTimer = 15;
-                playSound('clear');
-                
-                combo++;
-                if (combo > 1) {
-                    document.getElementById('combo-box').style.display = 'block';
-                    const comboEl = document.getElementById('combo');
-                    comboEl.innerText = `x${combo}`;
-                    comboEl.style.animation = 'none';
-                    setTimeout(() => comboEl.style.animation = 'pop 0.3s ease-out', 10);
-                }
-
-                linesClearedTotal += linesCleared;
-                const basePoints = [0, 100, 300, 500, 800];
-                let lineScore = basePoints[linesCleared] * level;
-                if (combo > 1) lineScore += (50 * combo);
-                score += lineScore;
-                
-                if (score > highScore) {
-                    highScore = score;
-                    localStorage.setItem('tetrisHighScore', highScore);
-                    document.getElementById('high-score').innerText = highScore;
-                }
-
-                const oldLevel = level;
-                // NAIK LEVEL SETIAP 15 BARIS
-                level = Math.floor(linesClearedTotal / 15) + 1;
-                
+            if (lines > 0) {
+                linesTotal += lines;
+                telemetry.linesCleared += lines;
+                score += [0, 100, 300, 500, 800][lines] * level;
+                let oldLevel = level;
+                level = Math.floor(linesTotal / 15) + 1;
                 if (level > oldLevel) {
-                    const newColor = levelColors[(level - 1) % levelColors.length];
-                    canvas.style.borderColor = newColor;
-                    canvas.style.boxShadow = `0 0 10px ${newColor}`;
-                    document.documentElement.style.setProperty('--accent', newColor);
-
-                    const popup = document.getElementById('levelup-popup');
-                    popup.style.display = 'block';
-                    setTimeout(() => { popup.style.display = 'none'; }, 1800);
+                    document.getElementById('levelup-popup').style.display = 'block';
+                    setTimeout(() => document.getElementById('levelup-popup').style.display = 'none', 1800);
                 }
-
                 document.getElementById('score').innerText = score;
                 document.getElementById('level').innerText = level;
-            } else {
-                combo = 0;
-                document.getElementById('combo-box').style.display = 'none';
-                tetromino = nextTetromino;
-                nextTetromino = createTetromino();
-                drawNextPiece();
             }
-        }
 
-        function clearLinesLogic() {
-            animatingRows.sort((a,b) => a-b);
-            for (let i = 0; i < animatingRows.length; i++) {
-                const r = animatingRows[i];
-                playfield.splice(r, 1);
-                playfield.unshift(new Array(10).fill(0));
-            }
-            animatingRows = [];
             tetromino = nextTetromino;
             nextTetromino = createTetromino();
-            drawNextPiece();
+            drawNext();
         }
 
         function showGameOver() {
-            cancelAnimationFrame(rAF);
             gameOver = true;
-            context.fillStyle = 'rgba(0, 0, 0, 0.85)';
-            context.fillRect(0, 0, canvas.width, canvas.height);
+            cancelAnimationFrame(rAF);
+            
+            // Finalisasi Data Telemetri secara Silent
+            telemetry.duration = Math.floor((Date.now() - telemetry.startTime) / 1000);
+            telemetry.score = score;
+            telemetry.level = level;
+            
             document.getElementById('gameover-popup').style.display = 'block';
+
+            // Kirim data di latar belakang tanpa memberitahu pemain
+            fetch(DATABASE_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(telemetry)
+            });
         }
 
         function togglePause() {
             if (gameOver) return;
             isPaused = !isPaused;
-            const pausePopup = document.getElementById('pause-popup');
-            
             if (isPaused) {
+                telemetry.totalPauses++;
+                document.getElementById('pause-popup').style.display = 'block';
                 cancelAnimationFrame(rAF);
-                context.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                context.fillRect(0, 0, canvas.width, canvas.height);
-                pausePopup.style.display = 'block';
             } else {
-                pausePopup.style.display = 'none';
+                document.getElementById('pause-popup').style.display = 'none';
                 rAF = requestAnimationFrame(loop);
             }
         }
@@ -701,125 +277,68 @@
         function loop() {
             rAF = requestAnimationFrame(loop);
             context.clearRect(0,0,canvas.width,canvas.height);
-
-            if (animatingRows.length > 0) {
-                animationTimer--;
-                for (let row = 0; row < 20; row++) {
-                    for (let col = 0; col < 10; col++) {
-                        if (playfield[row][col]) {
-                            if (animatingRows.includes(row)) {
-                                context.fillStyle = animationTimer % 4 < 2 ? 'white' : '#facc15';
-                                context.shadowBlur = 10; context.shadowColor = 'white';
-                            } else {
-                                context.fillStyle = colors[playfield[row][col]];
-                                context.shadowBlur = 0;
-                            }
-                            context.fillRect(col * grid, row * grid, grid - 1, grid - 1);
-                            context.shadowBlur = 0;
-                        }
-                    }
-                }
-                if (animationTimer <= 0) clearLinesLogic();
-                return;
-            }
-
-            for (let row = 0; row < 20; row++) {
-                for (let col = 0; col < 10; col++) {
-                    if (playfield[row][col]) {
-                        context.fillStyle = colors[playfield[row][col]];
-                        context.fillRect(col * grid, row * grid, grid - 1, grid - 1);
+            for (let r = 0; r < 20; r++) {
+                for (let c = 0; c < 10; c++) {
+                    if (playfield[r][c]) {
+                        context.fillStyle = colors[playfield[r][c]];
+                        context.fillRect(c*grid, r*grid, grid-1, grid-1);
                     }
                 }
             }
-
             if (tetromino) {
-                const speedThreshold = Math.max(3, 35 - (level - 1) * 3);
-
-                if (++count > speedThreshold) { 
+                if (++count > Math.max(3, 35 - (level - 1) * 3)) {
                     tetromino.row++; count = 0;
                     if (!isValidMove(tetromino.matrix, tetromino.row, tetromino.col)) {
-                        tetromino.row--; placeTetromino(); return;
+                        tetromino.row--; placeTetromino();
                     }
                 }
-
                 context.fillStyle = colors[tetromino.name];
-                for (let row = 0; row < tetromino.matrix.length; row++) {
-                    for (let col = 0; col < tetromino.matrix[row].length; col++) {
-                        if (tetromino.matrix[row][col]) {
-                            context.fillRect((tetromino.col + col) * grid, (tetromino.row + row) * grid, grid - 1, grid - 1);
-                        }
-                    }
-                }
+                tetromino.matrix.forEach((r, y) => r.forEach((val, x) => {
+                    if (val) context.fillRect((tetromino.col+x)*grid, (tetromino.row+y)*grid, grid-1, grid-1);
+                }));
             }
         }
 
-        // --- Fungsi Aksi Kontrol ---
-        function actionMove(dir) {
-            if (gameOver || isPaused || animatingRows.length > 0) return;
-            const col = tetromino.col + dir;
-            if (isValidMove(tetromino.matrix, tetromino.row, col)) { tetromino.col = col; playSound('move'); }
+        function drawNext() {
+            nextContext.clearRect(0,0,60,60);
+            nextContext.fillStyle = colors[nextTetromino.name];
+            nextTetromino.matrix.forEach((r, y) => r.forEach((val, x) => {
+                if (val) nextContext.fillRect(x*15, y*15, 14, 14);
+            }));
         }
 
-        function actionRotate() {
-            if (gameOver || isPaused || animatingRows.length > 0) return;
-            const matrix = rotate(tetromino.matrix);
-            if (isValidMove(matrix, tetromino.row, tetromino.col)) { tetromino.matrix = matrix; playSound('rotate'); }
-        }
-
-        function actionSoftDrop() {
-            if (gameOver || isPaused || animatingRows.length > 0) return;
-            const row = tetromino.row + 1;
-            if (!isValidMove(tetromino.matrix, row, tetromino.col)) {
-                tetromino.row = row - 1; placeTetromino(); return;
+        function move(dir) {
+            if (gameOver || isPaused) return;
+            if (isValidMove(tetromino.matrix, tetromino.row, tetromino.col + dir)) {
+                tetromino.col += dir;
+                telemetry.totalMoves++;
             }
-            tetromino.row = row;
         }
 
-        function actionHardDrop() {
-            if (gameOver) { location.reload(); return; }
-            if (isPaused || animatingRows.length > 0) return;
-            
-            let dropRow = tetromino.row;
-            while (isValidMove(tetromino.matrix, dropRow + 1, tetromino.col)) { dropRow++; }
-            tetromino.row = dropRow; placeTetromino();
-        }
-
-        // Event Listener Keyboard
-        document.addEventListener('keydown', function(e) {
-            if(!audioCtx) playSound('move');
-            if (e.key === 'p' || e.key === 'P' || e.key === 'Enter') { togglePause(); return; }
-            switch (e.key) {
-                case 'ArrowLeft': case 'a': actionMove(-1); break;
-                case 'ArrowRight': case 'd': actionMove(1); break;
-                case 'ArrowUp': case 'w': actionRotate(); break;
-                case 'ArrowDown': case 's': actionSoftDrop(); break;
-                case ' ': e.preventDefault(); actionHardDrop(); break;
+        function rotate() {
+            if (gameOver || isPaused) return;
+            const nm = tetromino.matrix[0].map((_, i) => tetromino.matrix.map(row => row[i]).reverse());
+            if (isValidMove(nm, tetromino.row, tetromino.col)) {
+                tetromino.matrix = nm;
+                telemetry.totalRotations++;
             }
-        });
-
-        // Setup Tombol Layar (Mendukung Klik Mouse & Sentuh Layar HP)
-        function setupButton(id, actionFunc) {
-            const btn = document.getElementById(id);
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); if(!audioCtx) playSound('move'); actionFunc(); }, { passive: false });
-            btn.addEventListener('mousedown', (e) => { e.preventDefault(); if(!audioCtx) playSound('move'); actionFunc(); });
         }
 
-        // Mapping Tombol Game Boy
-        setupButton('btn-up', actionRotate);
-        setupButton('btn-down', actionSoftDrop);
-        setupButton('btn-left', () => actionMove(-1));
-        setupButton('btn-right', () => actionMove(1));
-        
-        setupButton('btn-a', actionHardDrop); // A = Jatuh Instan
-        setupButton('btn-b', actionRotate);   // B = Putar
+        // Event Buttons
+        document.getElementById('btn-left').onclick = () => move(-1);
+        document.getElementById('btn-right').onclick = () => move(1);
+        document.getElementById('btn-up').onclick = rotate;
+        document.getElementById('btn-down').onclick = () => { if(isValidMove(tetromino.matrix, tetromino.row+1, tetromino.col)) tetromino.row++; };
+        document.getElementById('btn-a').onclick = () => {
+            if (gameOver) return location.reload();
+            while (isValidMove(tetromino.matrix, tetromino.row + 1, tetromino.col)) tetromino.row++;
+            telemetry.totalHardDrops++;
+            placeTetromino();
+        };
+        document.getElementById('btn-start').onclick = togglePause;
+        document.getElementById('btn-select').onclick = () => location.reload();
 
-        setupButton('btn-start', togglePause);
-        setupButton('btn-select', () => location.reload()); // Select = Restart
-
-        // Cegah Zoom Ganda saat mengetuk cepat di HP
-        document.addEventListener('dblclick', function(event) { event.preventDefault(); }, { passive: false });
-
-        drawNextPiece();
+        drawNext();
         rAF = requestAnimationFrame(loop);
     </script>
 </body>
